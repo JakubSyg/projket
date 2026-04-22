@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Kółko i krzyżyk</title>
+
+    <style>
+      body {
+    background: #222;
+    color: white;
+    font-family: Arial;
+    text-align: center;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    gap: 5px;
+    justify-content: center;
+    margin: 20px auto;
+    position: relative; 
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    background: #333;
+    border: 2px solid #555;
+    font-size: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.cell:hover {
+    background: #444;
+}
+
+.board {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    gap: 5px;
+    justify-content: center;
+}
+
+.win-line {
+    position: absolute;
+    height: 6px;
+    background: red;
+    border-radius: 3px;
+    pointer-events: none;
+    z-index: 10;
+    transform-origin: 0 50%;
+}
+    </style>
+</head>
+
+<body>
+
+<h1>Kółko i krzyżyk</h1>
+
+<p id="status">Tura: X</p>
+
+<p id="score">X: 0 | O: 0</p>
+
+<div class="board" id="board"></div>
+
+<button onclick="resetGame()">Reset planszy</button>
+<button onclick="resetScores()">Reset punktów</button>
+
+<script>
+
+let board = ["", "", "", "", "", "", "", "", ""];
+let currentPlayer = "X";
+let gameActive = true;
+
+let scoreX = 0;
+let scoreO = 0;
+
+const boardElement = document.getElementById("board");
+const statusText = document.getElementById("status");
+
+const winConditions = [
+    [0,1,2],
+    [3,4,5],
+    [6,7,8],
+    [0,3,6],
+    [1,4,7],
+    [2,5,8],
+    [0,4,8],
+    [2,4,6]
+];
+
+function updateScore() {
+    document.getElementById("score").textContent =
+        "X: " + scoreX + " | O: " + scoreO;
+}
+
+
+// plansza
+function createBoard() {
+    boardElement.innerHTML = "";
+
+    let i = 0;
+
+    while (i < 9) {
+        let cell = document.createElement("div");
+
+        cell.className = "cell";
+        cell.dataset.index = i;
+
+        cell.onclick = function (e) {
+            handleClick(e);
+        };
+
+        boardElement.appendChild(cell);
+
+        i = i + 1;
+    }
+}
+//reset punltow
+function resetScores() {
+    scoreX = 0;
+    scoreO = 0;
+
+    updateScore();
+}
+// klik
+function handleClick(e) {
+    let index = e.target.dataset.index;
+
+    if (board[index] !== "") return;
+    if (gameActive === false) return;
+
+    board[index] = currentPlayer;
+    e.target.textContent = currentPlayer;
+
+    let win = checkWinner();
+    if (win === true) return;
+
+    if (currentPlayer === "X") {
+        currentPlayer = "O";
+    } else {
+        currentPlayer = "X";
+    }
+
+    statusText.textContent = "Tura: " + currentPlayer;
+}
+
+// wygrana
+function checkWinner() {
+    let i = 0;
+
+    while (i < winConditions.length) {
+
+        let a = winConditions[i][0];
+        let b = winConditions[i][1];
+        let c = winConditions[i][2];
+
+        if (
+            board[a] !== "" &&
+            board[a] === board[b] &&
+            board[a] === board[c]
+        ) {
+            gameActive = false;
+
+            if (board[a] === "X") scoreX++;
+            else scoreO++;
+
+            updateScore();
+
+            statusText.textContent = "Wygrał " + board[a];
+
+            drawWinLine(a, c);
+
+            return true;
+        }
+
+        i = i + 1;
+    }
+
+    let emptyFound = false;
+
+    let j = 0;
+    while (j < board.length) {
+        if (board[j] === "") emptyFound = true;
+        j = j + 1;
+    }
+
+    if (emptyFound === false) {
+
+        scoreX++;
+        scoreO++;
+
+        updateScore();
+
+        statusText.textContent = "Remis!";
+        gameActive = false;
+    }
+
+    return false;
+}
+
+// linia
+function drawWinLine(startIndex, endIndex) {
+
+    let line = document.createElement("div");
+    line.className = "win-line";
+
+    boardElement.appendChild(line);
+
+    let cells = document.getElementsByClassName("cell");
+
+    let startCell = cells[startIndex];
+    let endCell = cells[endIndex];
+
+    let x1 = startCell.offsetLeft + startCell.offsetWidth / 2;
+    let y1 = startCell.offsetTop + startCell.offsetHeight / 2;
+
+    let x2 = endCell.offsetLeft + endCell.offsetWidth / 2;
+    let y2 = endCell.offsetTop + endCell.offsetHeight / 2;
+
+    let dx = x2 - x1;
+    let dy = y2 - y1;
+
+    let length = Math.sqrt(dx * dx + dy * dy);
+    let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+    line.style.width = length + "px";
+    line.style.left = x1 + "px";
+    line.style.top = y1 + "px";
+    line.style.transform = "rotate(" + angle + "deg)";
+    line.style.transformOrigin = "0 50%";
+}
+
+// reset
+function resetGame() {
+    board = ["", "", "", "", "", "", "", "", ""];
+    currentPlayer = "X";
+    gameActive = true;
+
+    statusText.textContent = "Tura: X";
+
+    let oldLine = document.querySelector(".win-line");
+
+    if (oldLine !== null) {
+        oldLine.remove();
+    }
+
+    createBoard();
+}
+
+createBoard();
+
+</script>
+
+</body>
+</html>
