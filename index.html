@@ -37,14 +37,6 @@
     background: #444;
 }
 
-.board {
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(3, 100px);
-    gap: 5px;
-    justify-content: center;
-}
-
 .win-line {
     position: absolute;
     height: 6px;
@@ -62,7 +54,6 @@
 <h1>Kółko i krzyżyk</h1>
 
 <p id="status">Tura: X</p>
-
 <p id="score">X: 0 | O: 0</p>
 
 <div class="board" id="board"></div>
@@ -111,7 +102,6 @@ function createBoard() {
     boardElement.innerHTML = "";
 
     let i = 0;
-
     while (i < 9) {
         let cell = document.createElement("div");
 
@@ -132,7 +122,6 @@ function createBoard() {
 function resetScores() {
     scoreX = 0;
     scoreO = 0;
-
     updateScore();
 }
 
@@ -146,8 +135,11 @@ function handleClick(e) {
     board[index] = currentPlayer;
     e.target.textContent = currentPlayer;
 
-    let win = checkWinner();
-    if (win === true) return;
+    if (checkWinner()) return;
+
+    checkDraw(); // 🔥 NOWE
+
+    if (gameActive === false) return;
 
     if (currentPlayer === "X") {
         currentPlayer = "O";
@@ -160,6 +152,7 @@ function handleClick(e) {
 
 // wygrana
 function checkWinner() {
+
     let i = 0;
 
     while (i < winConditions.length) {
@@ -190,15 +183,13 @@ function checkWinner() {
         i = i + 1;
     }
 
-    let emptyFound = false;
+    return false;
+}
 
-    let j = 0;
-    while (j < board.length) {
-        if (board[j] === "") emptyFound = true;
-        j = j + 1;
-    }
+// 🔥 NOWA FUNKCJA REMISU
+function checkDraw() {
 
-    if (emptyFound === false) {
+    if (!board.includes("") && gameActive === true) {
 
         scoreX++;
         scoreO++;
@@ -208,8 +199,6 @@ function checkWinner() {
         statusText.textContent = "Remis!";
         gameActive = false;
     }
-
-    return false;
 }
 
 // linia
@@ -244,7 +233,7 @@ function drawWinLine(startIndex, endIndex) {
     line.style.transformOrigin = "0 50%";
 }
 
-// reset gry + zmiana startu
+// reset gry
 function resetGame() {
 
     if (startingPlayer === "X") {
@@ -261,13 +250,9 @@ function resetGame() {
     statusText.textContent = "Tura: " + currentPlayer;
 
     let oldLine = document.querySelector(".win-line");
-
-    if (oldLine !== null) {
-        oldLine.remove();
-    }
+    if (oldLine !== null) oldLine.remove();
 
     createBoard();
-
     updateStarter();
 }
 
