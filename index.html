@@ -70,10 +70,13 @@
 <button onclick="resetGame()">Reset planszy</button>
 <button onclick="resetScores()">Reset punktów</button>
 
+<p id="starter">Zaczyna: X</p>
+
 <script>
 
 let board = ["", "", "", "", "", "", "", "", ""];
 let currentPlayer = "X";
+let startingPlayer = "X";
 let gameActive = true;
 
 let scoreX = 0;
@@ -98,6 +101,10 @@ function updateScore() {
         "X: " + scoreX + " | O: " + scoreO;
 }
 
+function updateStarter() {
+    document.getElementById("starter").textContent =
+        "Zaczyna: " + startingPlayer;
+}
 
 // plansza
 function createBoard() {
@@ -120,13 +127,15 @@ function createBoard() {
         i = i + 1;
     }
 }
-//reset punltow
+
+// reset punktów
 function resetScores() {
     scoreX = 0;
     scoreO = 0;
 
     updateScore();
 }
+
 // klik
 function handleClick(e) {
     let index = e.target.dataset.index;
@@ -235,13 +244,21 @@ function drawWinLine(startIndex, endIndex) {
     line.style.transformOrigin = "0 50%";
 }
 
-// reset
+// reset gry + zmiana startu
 function resetGame() {
+
+    if (startingPlayer === "X") {
+        startingPlayer = "O";
+    } else {
+        startingPlayer = "X";
+    }
+
+    currentPlayer = startingPlayer;
+
     board = ["", "", "", "", "", "", "", "", ""];
-    currentPlayer = "X";
     gameActive = true;
 
-    statusText.textContent = "Tura: X";
+    statusText.textContent = "Tura: " + currentPlayer;
 
     let oldLine = document.querySelector(".win-line");
 
@@ -250,9 +267,12 @@ function resetGame() {
     }
 
     createBoard();
+
+    updateStarter();
 }
 
 createBoard();
+updateStarter();
 
 </script>
 
