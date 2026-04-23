@@ -137,7 +137,7 @@ function handleClick(e) {
 
     if (checkWinner()) return;
 
-    checkDraw(); // 🔥 NOWE
+    checkDraw(); 
 
     if (gameActive === false) return;
 
@@ -186,7 +186,7 @@ function checkWinner() {
     return false;
 }
 
-// 🔥 NOWA FUNKCJA REMISU
+//remis
 function checkDraw() {
 
     if (!board.includes("") && gameActive === true) {
